@@ -11,5 +11,5 @@ smallBump n
 
 main = do
   let s = singleton 3
-  print $ closeRT s smallBump
-  print $ closeT s smallBump
+  print $ closeRT smallBump s
+  print $ closeT smallBump s

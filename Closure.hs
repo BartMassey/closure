@@ -11,22 +11,22 @@ import qualified Data.Set as Set
 bigUnion :: Ord a => Set (Set a) -> Set a
 bigUnion = unions . toList
 
-type Close a = Set a -> (a -> Set a) -> Set a
+type Close a = (a -> Set a) -> (Set a -> Set a)
 
 expansion :: Ord a => Close a
-expansion source expand = 
+expansion expand source = 
   bigUnion (Set.map expand source)
 
 step :: Ord a => (a -> Set a) -> (Set a -> Set a) -> (Set a -> Set a)
 step expand f source =
-  let step = expansion source expand \\ source in
+  let step = expansion expand source \\ source in
   let expanded = source `union` f step in
   if Set.null step then source else expanded
 
 closeRT :: Ord a => Close a
-closeRT source expand =
+closeRT expand source =
   fix (step expand) source
     
 closeT :: Ord a => Close a
-closeT source expand =
-  fix (step expand) (expansion source expand)
+closeT expand source =
+  fix (step expand) (expansion expand source)
