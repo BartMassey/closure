@@ -1,5 +1,8 @@
--- Copyright © 2010 Bart Massey
+-- Copyright © 2012 Bart Massey
 -- Transitive closure (reflexive and irreflexive)
+
+module Closure(closeT, closeRT)
+where
 
 import Data.Function (fix)
 import Data.Set (Set, toList, union, unions, singleton, empty, (\\))
@@ -14,26 +17,16 @@ expansion :: Ord a => Close a
 expansion source expand = 
   bigUnion (Set.map expand source)
 
-step :: Ord a => (Set a -> Set a) -> Close a
-step f source expand =
+step :: Ord a => (a -> Set a) -> (Set a -> Set a) -> (Set a -> Set a)
+step expand f source =
   let step = expansion source expand \\ source in
   let expanded = source `union` f step in
   if Set.null step then source else expanded
 
 closeRT :: Ord a => Close a
 closeRT source expand =
-  fix closeStep source
-  where
-    closeStep f source = step f source expand
+  fix (step expand) source
     
 closeT :: Ord a => Close a
 closeT source expand =
-  fix closeStep (expansion source expand)
-  where
-    closeStep f source = step f source expand
-    
-smallBump :: Int -> Set Int
-smallBump n
-  | n < 12 = singleton (n + 2)
-  | otherwise = empty
-
+  fix (step expand) (expansion source expand)
